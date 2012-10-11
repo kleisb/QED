@@ -1,6 +1,7 @@
 var View = require('./view');
 var template = require('./templates/topbar');
 var SignInModal = require("./templates/sign_in_modal");
+var SlideDeckInputs = require('./templates/slidedeck_inputs');
 var SignInView = require("./sign_in");
 var SessionsView = require("./sessions_view");
 
@@ -29,6 +30,47 @@ module.exports = View.extend({
         this.initSignIn();
 
         this.$el.find(".sessions-container").append(this.sessionsView.render().el);
+
+        this.$el.find(".slide-deck-clip").click(function(e) {
+            // capture initial state
+            var orig_border = $(".qed-selectable svg").css("border");
+            var orig_background = $(".qed-selectable svg").css("background-color");
+
+            // make selectable
+            $(".qed-selectable svg").css("border", "1px dashed black");
+            $(".qed-selectable svg").hover(function() {
+                $(this).css("background-color", colorbrewer.YlOrBr[9][2]);
+            });
+
+            // on hover activate clip tool
+            $(".qed-selectable svg").hover(_.once(function() {
+                // show clip tool
+                var container_inputs = $("body").append(SlideDeckInputs()).find(".container-slidedeck-inputs");
+                container_inputs.modal("show");
+
+                var _svg = $(this);
+                $(".container-slidedeck-inputs .add-to-current-slide").click(function(e) {
+                    // adjust modal size
+                    container_inputs.find(".modal-body").css("max-height", "800px");
+                    container_inputs.css("top", "30%");
+                    container_inputs.css("left", "30%");
+                    container_inputs.css("width", "800px");
+                    container_inputs.css("height", "600px");
+
+                    // revert svg to non-selected state
+                    _svg.css("background-color", orig_background);
+                    _svg.css("border", orig_border);
+
+                    // copy svg
+                    container_inputs.find(".modal-body").append(_svg.parent().html());
+                    container_inputs.find("svg").css("height", "400");
+                    container_inputs.find("svg").css("width", "600");
+
+                    // TODO : Append SVG to Slide Deck Section
+                    // TODO : Scale Down SVG properly
+                })
+            }));
+        });
     },
 
     initSearchAutocomplete:function () {
