@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Module>
+    <ModulePrefs title="QED Hangouts">
+        <Require feature="rpc"/>
+        <Require feature="views"/>
+        <Require feature="locked-domain"/>
+    </ModulePrefs>
+    <Content type="html"><![CDATA[
+        <html>
+            <head>
+                <meta charset="utf-8">
+                <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+                <title>QED</title>
+                <meta name="viewport" content="width=device-width">
+                <link rel="stylesheet" href="https://vis.systemsbiology.net/qed/css/app.css">
+                <script src="https://vis.systemsbiology.net/qed/js/vendor.js"></script>
+                <script src="https://vis.systemsbiology.net/qed/js/app.js"></script>
+                <script src="https://hangoutsapi.talkgadget.google.com/hangouts/api/hangout.js?v=1.0"></script>
+                <script>require('initialize');</script>
+            </head>
+            <body>
+                <div>
+                    <div class="navbar navbar-fixed-top" id="navigation-container"></div>
+                    <div class="container-fluid outer-container" id="mainDiv"></div>
+                </div>
+                <script>
+                    gadgets.util.registerOnLoadHandler(function() {
+                        gapi.hangout.onApiReady.add(
+                            function(eventObj) {
+                                if (eventObj.isApiReady) {
+                                    console.log("api ready");
+                                }
+                            }
+                        );
+                    });
+                </script>
+            </body>
+        </html>
+    ]]>
+    </Content>
+</Module>

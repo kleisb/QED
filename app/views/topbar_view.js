@@ -84,9 +84,9 @@ module.exports = View.extend({
                     sign_in_view.signout();
                 });
                 if (provider.id == "google") {
-                    if (provider.active) _this.$el.find(".google-drive-menu").show();
+                    if (provider.active) _this.$el.find(".google-account-dependent").show();
                     sign_in_view.on("signout", function() {
-                        _this.$el.find(".google-drive-menu").hide();
+                        _this.$el.find(".google-account-dependent").hide();
                     });
                 }
             });
