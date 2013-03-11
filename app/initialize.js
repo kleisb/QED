@@ -6,7 +6,8 @@ $(function () {
             "Mappings":require("models/mappings"),
             "FeatureMatrix":require("models/featureMatrix2"),
             "GraphLayouts":require("models/graph_layouts"),
-            "Mutations":require("models/mutations")
+            "Mutations":require("models/mutations"),
+            "Tabular":require("models/tabular")
         },
         ViewMappings:{
             "Annotations":[
@@ -24,10 +25,14 @@ $(function () {
             ],
             "Mutations": [
                 { "id":"seqpeek", label:"Mutation Viewer" }
+            ],
+            "Tabular": [
+                { "id":"grid_admix", label:"Grid" }
             ]
         },
         Views:{
             "grid":require("views/grid_view"),
+            "grid_admix":require("views/grid_admix"),
             "circ":require("views/circvis_view"),
             "heat":require("views/oncovis_view"),
             "graph":require("views/graphtree_view"),
