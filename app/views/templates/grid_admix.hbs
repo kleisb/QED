@@ -13,7 +13,13 @@
     {{#each rows}}
     <tr>
         {{#each values}}
-        <td>{{.}}</td>
+        <td>
+            <ul class="nav nav-list">
+                {{#each .}}
+                <li>{{.}}</li>
+                {{/each}}
+            </ul>
+        </td>
         {{/each}}
         {{#if showAdmix}}
         <td class="c-admix-ratio"></td>

@@ -21,26 +21,21 @@ module.exports = Backbone.View.extend({
                 _.each(annotations["columns"], function (colSpec) {
                     headers.push({ "label": colSpec.label || colSpec, "id": colSpec.label || colSpec })
                 });
-                _.each(items, function(item) {
-                    var values = [];
-                    _.each(annotations["columns"], function (colSpec) {
-                        var lineitems = [];
-                        if (_.isObject(colSpec)) {
-                            if (_.isObject(colSpec.fields)) {
-                                _.each(colSpec.fields, function(field) {
-                                    lineitems.push(item[field]);
-                                });
-                                values.push(lineitems.join("\n"));
-                            } else if (_.isString(colSpec.fields)) {
-                                values.push(item[colSpec.fields]);
-                            } else {
-                                values.push(item[colSpec.field] || "");
+                rows = _.map(items, function (item) {
+                    return {
+                        "values": _.map(annotations["columns"], function (colSpec) {
+                            if (_.isObject(colSpec)) {
+                                if (_.isArray(colSpec.fields)) {
+                                    return _.map(colSpec.fields, function (field) { return item[field]; });
+                                } else if (_.isString(colSpec.fields)) {
+                                    return [item[colSpec.fields]];
+                                }
+                                return [item[colSpec.field] || ""];
+                            } else if (_.isString(colSpec)) {
+                                return [item[colSpec] || ""];
                             }
-                        } else if (_.isString(colSpec)) {
-                            values.push(item[colSpec] || "");
-                        }
-                    });
-                    rows.push({ "values": values });
+                        })
+                    };
                 });
             } else {
                 headers = _.map(_.keys(_.first(items)), function (item_key) {
@@ -49,7 +44,7 @@ module.exports = Backbone.View.extend({
                 rows = _.map(items, function (item) {
                     return {
                         "values": _.map(headers, function (header) {
-                            return item[header.id];
+                            return [item[header.id]];
                         })
                     };
                 });
