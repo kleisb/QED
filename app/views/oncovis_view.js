@@ -126,7 +126,7 @@ module.exports = View.extend({
             var numberOfCategories = (categories.length < 3) ? 3 : categories.length;
 
             var colorscales = function (cell) {
-                return colorbrewer.YlOrBr[numberOfCategories][categories.indexOf(cell)];
+                return colorbrewer.YlOrRd[numberOfCategories][categories.indexOf(cell)];
             };
             if (numberOfCategories > 7) {
                 var colorscaleFn = d3.scale.ordinal().domain(categories)
