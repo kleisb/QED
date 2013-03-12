@@ -96,12 +96,13 @@ $(function () {
     qed.Annotations = {};
     qed.FetchAnnotations = function (dataset_id) {
         if (_.isEmpty(qed.Annotations[dataset_id])) {
-            var annotations = new qed.Models.Annotations({"url":"svc/data/annotations/" + dataset_id + ".json", "dataType":"json"});
-            annotations.fetch({
-                "async":false,
-                "dataType":"json",
-                "success":function () {
-                    qed.Annotations[dataset_id] = annotations.get("itemsById");
+            $.ajax({
+                "method": "GET",
+                "url": "svc/data/annotations/" + dataset_id + ".json",
+                "dataType": "json",
+                "asynch": false,
+                "success": function(json) {
+                    qed.Annotations[dataset_id] = json;
                 }
             });
         }
