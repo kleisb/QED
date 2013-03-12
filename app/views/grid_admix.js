@@ -25,10 +25,20 @@ module.exports = Backbone.View.extend({
                     var values = [];
                     _.each(annotations["columns"], function (colSpec) {
                         var lineitems = [];
-                        _.each(colSpec.fields, function(field) {
-                            lineitems.push(item[field]);
-                        });
-                        values.push(lineitems.join("\n"));
+                        if (_.isObject(colSpec)) {
+                            if (_.isObject(colSpec.fields)) {
+                                _.each(colSpec.fields, function(field) {
+                                    lineitems.push(item[field]);
+                                });
+                                values.push(lineitems.join("\n"));
+                            } else if (_.isString(colSpec.fields)) {
+                                values.push(item[colSpec.fields]);
+                            } else {
+                                values.push(item[colSpec.field] || "");
+                            }
+                        } else if (_.isString(colSpec)) {
+                            values.push(item[colSpec] || "");
+                        }
                     });
                     rows.push({ "values": values });
                 });
