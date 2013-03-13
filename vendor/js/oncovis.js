@@ -82,11 +82,9 @@
                 .text(function (d) {
                     return d;
                 })
-                .style("font-size", this.label_fontsize + "px")
-                .append("svg:title")
-                .text(function (d) {
-                    return d;
-                });
+                .attr("x", this.label_width - 5)
+                .style("text-anchor", "end")
+                .style("font-size", this.label_fontsize + "px");
 
             this.rows.style("display", function() {
                 return (that.row_labels_enabled == true) ? "inline": "none";
@@ -342,6 +340,8 @@
                 var position_info = that.cluster_position_by_label[d.label];
                 return "translate(" + (that.label_width + position_info.spacing + position_info.sample_pos * (that.bar_width + that.column_spacing)) + ", -20)";
             });
+
+            this.rows.selectAll("text.row-label").attr("x", this.label_width - 5);
         },
 
         _updateRowLabelVisibility:function() {
