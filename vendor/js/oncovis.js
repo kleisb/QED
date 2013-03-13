@@ -83,7 +83,9 @@
                     return d;
                 })
                 .attr("x", this.label_width - 5)
+                .attr("y", this.bar_height * -1)
                 .style("text-anchor", "end")
+                .style("alignment-baseline", "baseline")
                 .style("font-size", this.label_fontsize + "px");
 
             this.rows.style("display", function() {
