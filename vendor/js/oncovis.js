@@ -70,32 +70,6 @@
                     return d.label;
                 });
 
-            // Display label on each row
-            this.rows = data_area.selectAll("g.row-info")
-                .data(this.row_labels)
-                .enter()
-                .append("g", "a")
-                .attr("class", "row-info");
-
-            this.rows.append("text")
-                .attr("class", "row-label")
-                .text(function (d) {
-                    return d;
-                })
-                .attr("x", this.label_width - 5)
-                .attr("y", (this.bar_height * -1))
-                .style("text-anchor", "end")
-                .style("alignment-baseline", "central")
-                .style("font-size", this.label_fontsize + "px");
-
-//            auto | baseline | before-edge | text-before-edge |
-//            middle | central | after-edge | text-after-edge |
-//            ideographic | alphabetic | hanging | mathematical |
-//            inherit
-            this.rows.style("display", function() {
-                return (that.row_labels_enabled == true) ? "inline": "none";
-            });
-
             this.cluster_columns = this.cluster_g.selectAll("g.cluster-column")
                 .data(function (cluster_info) {
                     return _.map(that.columns_by_cluster[cluster_info.label], function (sample_label) {
@@ -113,6 +87,24 @@
                 .enter()
                 .append("g")
                 .attr("class", "cluster-column");
+
+            // Display label on each row
+            var first_cluster = d3.select(this.cluster_g[0][0]);
+            this.rows = first_cluster.selectAll("g.row-info").data(this.row_labels).enter().append("g", "a").attr("class", "row-info");
+            this.rows.append("text")
+                .attr("class", "row-label")
+                .text(function (d) {
+                    return d;
+                })
+                .attr("x", -5)
+                .attr("height", this.bar_height)
+                .style("text-anchor", "end")
+                .style("alignment-baseline", "baseline")
+                .style("font-size", this.label_fontsize + "px");
+
+            this.rows.style("display", function() {
+                return (that.row_labels_enabled == true) ? "inline": "none";
+            });
 
             this.sample_bars = this.cluster_columns.selectAll("rect.sample")
                 .data(function (d) {
@@ -331,7 +323,7 @@
             this.cluster_g
                 .attr("transform", function (d) {
                     var position_info = that.cluster_position_by_label[d.label];
-                    return "translate(" + (that.label_width + position_info.spacing + position_info.sample_pos * (that.bar_width + that.column_spacing)) + ", -20)";
+                    return "translate(" + (position_info.spacing + position_info.sample_pos * (that.bar_width + that.column_spacing)) + ", -20)";
                 });
         },
 
@@ -346,8 +338,6 @@
                 var position_info = that.cluster_position_by_label[d.label];
                 return "translate(" + (that.label_width + position_info.spacing + position_info.sample_pos * (that.bar_width + that.column_spacing)) + ", -20)";
             });
-
-            this.rows.selectAll("text.row-label").attr("x", this.label_width - 5);
         },
 
         _updateRowLabelVisibility:function() {
