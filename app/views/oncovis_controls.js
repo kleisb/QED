@@ -28,7 +28,7 @@ module.exports = View.extend({
         this.$el.find(".slider_barspacing").oncovis_range({ storageId:"slider_barspacing", min:0, max:10, initialStep:1 });
         this.$el.find(".slider_clusterspacing").oncovis_range({ storageId:"slider_clusterspacing", min:0, max:50, initialStep:10 });
         this.$el.find(".slider_fontsize").oncovis_range({ storageId:"slider_fontsize", min:5, max:21, initialStep:10 });
-        this.$el.find(".slider_label_width").oncovis_range({ storageId:"slider_label_width", min:20, max:200, initialStep:100 });
+        this.$el.find(".slider_label_width").oncovis_range({ storageId:"slider_label_width", min:20, max:400, initialStep:150 });
 
         var _this = this;
 
@@ -85,7 +85,7 @@ module.exports = View.extend({
             column_spacing: parseInt(localStorage.getItem("slider_barspacing") || 3),
             cluster_spacing: parseInt(localStorage.getItem("slider_clusterspacing") || 10),
             label_fontsize: parseInt(localStorage.getItem("slider_fontsize") || 10),
-            label_width: (rowLabelsEnabled) ? parseInt(localStorage.getItem("slider_label_width") || 100) : 0,
+            label_width: (rowLabelsEnabled) ? parseInt(localStorage.getItem("slider_label_width") || 150) : 0,
             row_labels_enabled: rowLabelsEnabled
         }
     }

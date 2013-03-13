@@ -192,12 +192,6 @@ svg .wedge[data-ring="2"] .background {
     cursor:pointer;
 }
 
-.oncovis-container {
-    /*width:1200px;*/
-    height:700px;
-    overflow: auto;
-}
-
 g.cluster-info {
    font-size:10px;
 }

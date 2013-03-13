@@ -63,10 +63,6 @@
                 .attr("class", "cluster-info")
                 .attr("width", function (d) {
                     return d.num_samples;
-                })
-                .attr("transform", function (d) {
-                    var position_info = that.cluster_position_by_label[d.label];
-                    return "translate(" + (that.label_width + position_info.spacing + position_info.sample_pos * (that.bar_width + that.column_spacing)) + ", -20)";
                 });
 
             this.cluster_g.append("text").attr("y", -5)
@@ -342,11 +338,10 @@
         _updateRowLabelWidth:function() {
             var that = this;
 
-            this.cluster_g
-                .attr("transform", function (d) {
-                    var position_info = that.cluster_position_by_label[d.label];
-                    return "translate(" + (that.label_width + position_info.spacing + position_info.sample_pos * (that.bar_width + that.column_spacing)) + ", -20)";
-                });
+            this.cluster_g.attr("transform", function (d) {
+                var position_info = that.cluster_position_by_label[d.label];
+                return "translate(" + (that.label_width + position_info.spacing + position_info.sample_pos * (that.bar_width + that.column_spacing)) + ", -20)";
+            });
         },
 
         _updateRowLabelVisibility:function() {

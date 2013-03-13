@@ -148,8 +148,9 @@ module.exports = View.extend({
         });
 
         var optns = {
-            plot_width:Math.max(1500,_this.model.get("COLUMNS").length * 4),
-            plot_height:Math.max(700,27*this.rowLabels.length),
+            plot_height:1200,
+            vertical_padding: 15,
+            horizontal_padding: 1,
             highlight_fill:colorbrewer.RdYlGn[3][2],
             color_fn:function (d) {
                 return d ? d.colorscale : "white";
