@@ -27,12 +27,13 @@ $(function () {
                 { "id":"seqpeek", label:"Mutation Viewer" }
             ],
             "Tabular": [
-                { "id":"grid_admix", label:"Grid" }
+                { "id":"grid_pivot", label:"Grid" }
             ]
         },
         Views:{
             "grid":require("views/grid_view"),
-            "grid_admix":require("views/grid_admix"),
+            "grid_pivot":require("views/grid_pivot"),
+            "admix_ratios":require("views/admix_ratios"),
             "circ":require("views/circvis_view"),
             "heat":require("views/oncovis_view"),
             "graph":require("views/graphtree_view"),
