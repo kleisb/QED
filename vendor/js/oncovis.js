@@ -83,11 +83,15 @@
                     return d;
                 })
                 .attr("x", this.label_width - 5)
-                .attr("y", this.bar_height * -1)
+                .attr("y", (this.bar_height * -1))
                 .style("text-anchor", "end")
-                .style("alignment-baseline", "baseline")
+                .style("alignment-baseline", "central")
                 .style("font-size", this.label_fontsize + "px");
 
+//            auto | baseline | before-edge | text-before-edge |
+//            middle | central | after-edge | text-after-edge |
+//            ideographic | alphabetic | hanging | mathematical |
+//            inherit
             this.rows.style("display", function() {
                 return (that.row_labels_enabled == true) ? "inline": "none";
             });
