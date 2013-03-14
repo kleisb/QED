@@ -90,7 +90,7 @@ module.exports = Backbone.View.extend({
                                 var subitems = _.where(model.get("items"), search);
                                 if (!_.isEmpty(subitems)) {
                                     var submodel = new Backbone.Model({ "items": subitems });
-                                    var view = new ViewClass({ "model": submodel  });
+                                    var view = new ViewClass(_.extend(colSpec.options, { "model": submodel  }));
                                     $("#" + mapping.pivotId).append(view.render().el);
                                     submodel.trigger("load");
                                 }

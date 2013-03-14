@@ -17,11 +17,11 @@ module.exports = Backbone.View.extend({
 
     renderView: function () {
         var finderFn = function (item) {
-            return _.contains(_.values(item), "SUBPOPULATION");
+            return _.contains(_.values(item), this.options.subpopulation);
         };
 
-        var subpopulation = _.find(this.model.get("items"), finderFn) || {};
-        var data = _.reject(this.model.get("items"), finderFn) || [];
+        var subpopulation = _.find(this.model.get("items"), finderFn, this) || {};
+        var data = _.reject(this.model.get("items"), finderFn, this) || [];
 
         var m = [20, 40, 0, 40];
         var w = 300;
