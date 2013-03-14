@@ -16,7 +16,12 @@ module.exports = Backbone.View.extend({
     },
 
     renderView: function () {
-        var data = this.model.get("items");
+        var finderFn = function (item) {
+            return _.contains(_.values(item), "SUBPOPULATION");
+        };
+
+        var subpopulation = _.find(this.model.get("items"), finderFn) || {};
+        var data = _.reject(this.model.get("items"), finderFn) || [];
 
         var m = [20, 40, 0, 40];
         var w = 300;
@@ -64,6 +69,8 @@ module.exports = Backbone.View.extend({
             })
             .append("svg:text").attr("text-anchor", "middle").attr("y", -9)
             .text(function (d) {
+                var subpop = subpopulation[d];
+                if (subpop) return d + " (" + subpop + "%)";
                 return d;
             });
     }
