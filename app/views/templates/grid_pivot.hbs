@@ -9,14 +9,14 @@
     <tbody>
     {{#each rows}}
     <tr>
-        {{#each values}}
+        {{#each cells}}
             {{#if pivotColumn}}
                 <td id="{{pivotId}}"></td>
             {{/if}}
             {{#unless pivotColumn}}
-            <td>
+            <td class="span{{span}}">
                 <ul class="nav nav-list">
-                    {{#each .}}
+                    {{#each values}}
                     <li>{{.}}</li>
                     {{/each}}
                 </ul>

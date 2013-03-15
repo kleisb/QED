@@ -26,29 +26,35 @@ module.exports = Backbone.View.extend({
                     }
                     return { "label": colSpec.label || colSpec, "id": colSpec.label || colSpec };
                 });
+
+                var cellTpl = function (colSpec, cell) {
+                    return _.extend({ "span": colSpec["span"], "values": [] }, cell);
+                };
+
                 rows = _.map(items, function (item) {
                     return {
-                        "values": _.map(annotations["columns"], function (colSpec) {
+                        "cells": _.map(annotations["columns"], function (colSpec) {
                             if (_.isObject(colSpec)) {
                                 if (_.isArray(colSpec.fields)) {
-                                    return _.map(colSpec.fields, function (field) {
-                                        return item[field];
+                                    return cellTpl(colSpec, {
+                                        "values": _.map(colSpec.fields, function (field) {
+                                            return item[field];
+                                        })
                                     });
                                 }
                                 if (_.isString(colSpec.fields)) {
-                                    return [item[colSpec.fields]];
+                                    return cellTpl(colSpec, { "values": [item[colSpec.fields]] });
                                 }
 
                                 if (colSpec.isPivot) {
-                                    var pivotValue = item[colSpec.pivot];
                                     var pivotId = _.uniqueId("pivot_");
-                                    colSpec.mappings.push({ "pivotValue": pivotValue, "pivotId": pivotId });
-                                    return {"pivotColumn": true, "pivotId": pivotId };
+                                    colSpec.mappings.push({ "pivotValue": item[colSpec.pivot], "pivotId": pivotId });
+                                    return cellTpl(colSpec, { "pivotColumn": true, "pivotId": pivotId });
                                 }
 
-                                return [item[colSpec.field] || ""];
+                                return cellTpl(colSpec, { "values": [item[colSpec.field] || ""] });
                             } else if (_.isString(colSpec)) {
-                                return [item[colSpec] || ""];
+                                return cellTpl(colSpec, { "values": [item[colSpec] || ""] });
                             }
                         })
                     };
@@ -59,8 +65,8 @@ module.exports = Backbone.View.extend({
                 });
                 rows = _.map(items, function (item) {
                     return {
-                        "values": _.map(headers, function (header) {
-                            return [item[header.id]];
+                        "cells": _.map(headers, function (header) {
+                            return { "values": [item[header.id]] };
                         })
                     };
                 });
@@ -79,7 +85,7 @@ module.exports = Backbone.View.extend({
                     join_sources = join_data;
                 }
 
-                _.each(join_sources, function(join_source) {
+                _.each(join_sources, function (join_source) {
                     var model = new qed.Models[colSpec["model"]]({ "data_uri": join_source });
                     model.fetch({
                         success: function () {
