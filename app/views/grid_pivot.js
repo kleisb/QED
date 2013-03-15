@@ -24,7 +24,7 @@ module.exports = Backbone.View.extend({
                         colSpec.mappings = [];
                         pivots.push(colSpec);
                     }
-                    return { "label": colSpec.label || colSpec, "id": colSpec.label || colSpec };
+                    return { "label": colSpec.label || colSpec, "id": colSpec.label || colSpec, "subtitle": colSpec.subtitle };
                 });
 
                 var cellTpl = function (colSpec, cell) {
