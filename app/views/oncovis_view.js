@@ -13,7 +13,7 @@ module.exports = View.extend({
 
     initialize:function (options) {
         _.extend(this, options);
-        _.bindAll(this, 'renderGraph', 'initControls', 'onNewRows');
+        _.bindAll(this, 'renderGraph', 'initControls', 'onNewRows', 'updateLabelDimensions');
 
         this.storageKeys = {
             cluster: "oncovis_view." + this.model.get("dataset_id") + ".cluster_property",
@@ -149,7 +149,6 @@ module.exports = View.extend({
 
         var optns = {
             plot_height: 650,
-            vertical_padding: 15,
             horizontal_padding: 1,
             highlight_fill:colorbrewer.RdYlGn[3][2],
             color_fn:function (d) {
@@ -160,11 +159,25 @@ module.exports = View.extend({
             row_labels:this.rowLabels
         };
 
+        var initialValue = this.controls.initialValue();
         var oncovis_container = this.$el.find(".oncovis-container");
-        oncovis_container.oncovis(data, _.extend(optns, this.controls.initialValue()));
+        oncovis_container.oncovis(data, _.extend(optns, initialValue));
+
+        var vertical_padding = oncovis_container.oncovis("vertical_padding");
+        var cluster_spacing = oncovis_container.oncovis("cluster_spacing");
+        if (_.isEmpty(this.clusterProperty) || _.isEqual(this.clusterProperty, ALL_COLUMNS)) cluster_spacing = 0;
+        var isClustered = (!_.isEmpty(this.clusterProperty) && !_.isEqual(this.clusterProperty, ALL_COLUMNS));
+        var row_index_scale = oncovis_container.oncovis("row_index_scale");
+
+        var row_index_spacing = row_index_scale(_.first(this.rowLabels));
+
+//        console.log("vertical_padding="+ vertical_padding);
+//        console.log("cluster_spacing="+ cluster_spacing);
+//        console.log("row_index_spacing="+ row_index_spacing + ":" + _.first(this.rowLabels));
 
         var labelsContainer = this.$el.find(".oncovis-rowlabels");
-        labelsContainer.css("padding-top", 2 * oncovis_container.oncovis("vertical_padding"));
+        labelsContainer.empty();
+//        labelsContainer.css("padding-top", 30);
         _.each(this.rowLabels, function(rowLabel) {
             labelsContainer.append("<li class='rowlabel'>" + rowLabel + "</div>")
         });
@@ -180,6 +193,8 @@ module.exports = View.extend({
                 oncovis_container.oncovis("update", { row_labels: _this.rowLabels });
             }
         });
+
+        this.updateLabelDimensions(initialValue);
     },
 
     initControls:function () {
@@ -190,6 +205,27 @@ module.exports = View.extend({
         this.controls.on("updated", function(dim) {
             oncovis_container.oncovis("update", dim);
         });
+        this.controls.on("updated", this.updateLabelDimensions);
+    },
+
+    updateLabelDimensions: function(dim) {
+        var labelsContainer = this.$el.find(".oncovis-rowlabels");
+
+        if (_.has(dim, "bar_height")) {
+            labelsContainer.find("li.rowlabel").css({ "line-height": dim["bar_height"] + "px" });
+        }
+        if (_.has(dim, "row_spacing")) {
+            labelsContainer.find("li.rowlabel").css({ "padding-bottom": dim["row_spacing"] + "px" });
+        }
+        if (_.has(dim, "label_fontsize")) {
+            labelsContainer.find("li.rowlabel").css({ "font-size": dim["label_fontsize"] + "px" });
+        }
+        if (_.has(dim, "label_width")) {
+            labelsContainer.css({ "width": dim["label_width"] + "px" });
+        }
+        if (_.has(dim, "row_labels_enabled")) {
+            labelsContainer.css({ "display": dim["row_labels_enabled"] ? "block" : "none" });
+        }
     },
 
     onNewRows:function (genelist) {

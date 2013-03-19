@@ -27,8 +27,8 @@ module.exports = View.extend({
         this.$el.find(".slider_barwidth").oncovis_range({ storageId:"slider_barwidth", min:1, max:10, initialStep:3 });
         this.$el.find(".slider_barspacing").oncovis_range({ storageId:"slider_barspacing", min:0, max:10, initialStep:1 });
         this.$el.find(".slider_clusterspacing").oncovis_range({ storageId:"slider_clusterspacing", min:0, max:50, initialStep:10 });
-        this.$el.find(".slider_fontsize").oncovis_range({ storageId:"slider_fontsize", min:5, max:21, initialStep:10 });
-        this.$el.find(".slider_label_width").oncovis_range({ storageId:"slider_label_width", min:20, max:400, initialStep:150 });
+        this.$el.find(".slider_fontsize").oncovis_range({ storageId:"slider_fontsize", min:6, max:24, initialStep:10 });
+        this.$el.find(".slider_label_width").oncovis_range({ storageId:"slider_label_width", min:50, max:400, initialStep:100 });
 
         var _this = this;
 
