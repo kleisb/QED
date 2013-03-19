@@ -10,8 +10,6 @@
 
         vertical_padding:30,
         horizontal_padding:30,
-        label_width:100,
-        label_fontsize:14,
         bar_height:20,
         bar_width:5,
         column_spacing:2,
@@ -45,7 +43,6 @@
                 .attr("height", this.plot_height);
 
             // Ordinal scale for vertical placement of sample data and row labels
-            this._updateRowLabelScale();
             this._updateRowIndexScale();
 
             // Ordinal scales for horizontal placement of sample data inside each cluster
@@ -90,21 +87,6 @@
 
             // Display label on each row
             var first_cluster = d3.select(this.cluster_g[0][0]);
-            this.rows = first_cluster.selectAll("g.row-info").data(this.row_labels).enter().append("g", "a").attr("class", "row-info");
-            this.rows.append("text")
-                .attr("class", "row-label")
-                .text(function (d) {
-                    return d;
-                })
-                .attr("x", -5)
-                .attr("height", this.bar_height)
-                .style("text-anchor", "end")
-                .style("alignment-baseline", "baseline")
-                .style("font-size", this.label_fontsize + "px");
-
-            this.rows.style("display", function() {
-                return (that.row_labels_enabled == true) ? "inline": "none";
-            });
 
             this.sample_bars = this.cluster_columns.selectAll("rect.sample")
                 .data(function (d) {
@@ -173,24 +155,12 @@
                 this._updateHorizontalScales();
             }
 
-            if (_.has(options, 'label_fontsize')) {
-                this.rows.selectAll("text.row-label").style("font-size", this.label_fontsize + "px");
-            }
-
             if (_.has(options, "color_fn")) {
                 this._updateColorFn();
             }
 
             if (_.has(options, "cluster_labels")) {
                 this._updateClusterLabels();
-            }
-
-            if (_.has(options, "label_width")) {
-                this._updateRowLabelWidth();
-            }
-
-            if (_.has(options, "row_labels_enabled")) {
-                this._updateRowLabelVisibility();
             }
         },
 
@@ -225,10 +195,6 @@
                 samples:row_value_arrays,
                 row_index_map:row_index_map
             };
-        },
-
-        _updateRowLabelScale:function () {
-            this.row_label_scale = d3.scale.ordinal().domain(this.row_labels).rangeRoundBands([0, this.row_labels.length * (this.bar_height + this.row_spacing)]);
         },
 
         _updateRowIndexScale:function () {
@@ -272,15 +238,10 @@
         },
 
         _updateVerticalScales:function () {
-            this._updateRowLabelScale();
             this._updateRowIndexScale();
 
             // Reset vertical locations of the row labels
             var that = this;
-            this.rows
-                .attr("transform", function (d) {
-                    return "translate(0, " + that.row_label_scale(d) + ")";
-                });
 
             this.cluster_columns.selectAll("rect.sample")
                 .attr("y", function (d, i) {
@@ -303,7 +264,7 @@
             this.cluster_g
                 .attr("transform", function (d) {
                     var position_info = that.cluster_position_by_label[d.label];
-                    return "translate(" + (that.label_width + position_info.spacing + position_info.sample_pos * (that.bar_width + that.column_spacing)) + ", -20)";
+                    return "translate(" + (position_info.spacing + position_info.sample_pos * (that.bar_width + that.column_spacing)) + ", -20)";
                 });
 
             this.cluster_columns
@@ -336,21 +297,8 @@
 
             this.cluster_g.attr("transform", function (d) {
                 var position_info = that.cluster_position_by_label[d.label];
-                return "translate(" + (that.label_width + position_info.spacing + position_info.sample_pos * (that.bar_width + that.column_spacing)) + ", -20)";
+                return "translate(" + (position_info.spacing + position_info.sample_pos * (that.bar_width + that.column_spacing)) + ", -20)";
             });
-        },
-
-        _updateRowLabelVisibility:function() {
-            var that = this;
-            this.rows
-                .style("display", function() {
-                    if (that.row_labels_enabled == true) {
-                        return "inline";
-                    }
-                    else {
-                        return "none";
-                    }
-                });
         }
     };
 
@@ -362,7 +310,7 @@
 
         if (typeof data == "string") {
             if (data == "update") vis.update(options);
-            if (data == "cluster_columns") vis.updateClusterColumns(options["cluster"], options["columns"]);
+            return vis[data];
         } else {
             vis.draw(data, options);
         }

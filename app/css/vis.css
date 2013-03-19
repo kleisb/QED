@@ -207,3 +207,13 @@ g.cluster-info {
 .match.PROFILE {
     fill: darkorange;
 }
+
+.oncovis-rowlabels {
+    width: 250px;
+    overflow: hidden;
+}
+
+.oncovis-rowlabels li.rowlabel {
+    /*text-align: right;*/
+    font-size: 10px;
+}

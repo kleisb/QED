@@ -148,7 +148,7 @@ module.exports = View.extend({
         });
 
         var optns = {
-            plot_height:1200,
+            plot_height: 650,
             vertical_padding: 15,
             horizontal_padding: 1,
             highlight_fill:colorbrewer.RdYlGn[3][2],
@@ -160,7 +160,26 @@ module.exports = View.extend({
             row_labels:this.rowLabels
         };
 
-        this.$el.find(".oncovis-container").oncovis(data, _.extend(optns, this.controls.initialValue()));
+        var oncovis_container = this.$el.find(".oncovis-container");
+        oncovis_container.oncovis(data, _.extend(optns, this.controls.initialValue()));
+
+        var labelsContainer = this.$el.find(".oncovis-rowlabels");
+        labelsContainer.css("padding-top", 2 * oncovis_container.oncovis("vertical_padding"));
+        _.each(this.rowLabels, function(rowLabel) {
+            labelsContainer.append("<li class='rowlabel'>" + rowLabel + "</div>")
+        });
+
+        var _this = this;
+        labelsContainer.find("li.rowlabel").disableSelection();
+        labelsContainer.sortable({
+            revert:true,
+            update: function() {
+                _this.rowLabels = _.map(labelsContainer.find("li.rowlabel"), function(rowlabel) {
+                    return $(rowlabel).html();
+                });
+                oncovis_container.oncovis("update", { row_labels: _this.rowLabels });
+            }
+        });
     },
 
     initControls:function () {
