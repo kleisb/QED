@@ -1,0 +1,61 @@
+<html>
+<head>
+    <link rel="shortcut icon" href="img/isbfavicon.ico" type="image/x-icon"/>
+    <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/bootstrap-2.0.4/css/bootstrap.min.css"/>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>3d Scatter</title>
+
+    <meta name="viewport" content="width=device-width">
+
+    <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+    <script src="http://canvasxpress.org/js/canvasXpress.min.js"></script>
+    <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/bootstrap-2.1.1/js/bootstrap.min.js"></script>
+
+    <script type="text/javascript">
+        var Draw = function() {
+            var txt = $("#text_data").val();
+            var rows = d3.csv.parseRows(txt);
+
+            new CanvasXpress("canvas",
+                {
+                    "y": {
+                        "vars": [ "Gene1", "Gene2", "Gene3" ],
+                        "smps": [ "Smp1", "Smp2", "Smp3" ],
+                        "desc": [ "Intensity" ],
+                        "data": rows
+                    }
+                },
+                {
+                    "graphType": "Scatter3D",
+                    "useFlashIE": true,
+                    "xAxis": [ "Smp1" ],
+                    "yAxis": [ "Smp2" ],
+                    "zAxis": [ "Smp3" ],
+                    "scatterType": false
+                }
+            );
+        }
+
+        $(document).ready(function() {
+            $("#text_data").val("-5,5,5\n-5,15,15\n-5,25,25\n-5,35,35\n-5,45,45\n-5,35,55\n-5,25,65");
+        });
+    </script>
+</head>
+<body>
+<div class="container row">
+    <div class="span4">
+        <h4>Data Input</h4>
+        <textarea id="text_data" rows="10"></textarea>
+        <br/>
+        <button class="btn btn-primary" onclick="Draw();">Draw</button>
+    </div>
+    <div class="span4">
+        <h4>Scatter 3D</h4>
+        <canvas id="canvas" width="613" height="500"></canvas>
+    </div>
+</div>
+</body>
+</html>
