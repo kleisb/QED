@@ -1,0 +1,193 @@
+<html>
+<head>
+    <link rel="shortcut icon" href="img/isbfavicon.ico" type="image/x-icon"/>
+    <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/bootstrap-2.0.4/css/bootstrap.min.css"/>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Heatmap</title>
+
+    <meta name="viewport" content="width=device-width">
+
+    <script type="text/javascript" src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>
+    <script type="text/javascript" src="http://canvasxpress.org/js/canvasXpress.min.js"></script>
+    <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/bootstrap-2.1.1/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="https://raw.github.com/documentcloud/underscore/master/underscore-min.js"></script>
+
+    <script type="text/javascript">
+        var InitCanvas = function () {
+            $(".vis-container").empty();
+            $(".vis-container").html('<canvas id="canvas" width="1000" height="500"></canvas>');
+        };
+
+        var TextDataAsDoubleArrays = function () {
+            var txt = $("#text_data").val();
+            var rows = d3.csv.parseRows(txt);
+            return _.map(rows, function (row) {
+                return _.map(row, parseFloat);
+            });
+        };
+
+        var HeatMap;
+        var DrawHeatmap = function (genes, smps, data) {
+            console.log("DrawHeatmap(" + genes.length + "," + smps.length + "," + data.length + ")");
+
+            InitCanvas();
+
+            if ($(".chk-logscale").is(":checked")) {
+                _.each(data, function(row) {
+                    _.each(row, function(cell, idx) {
+                        row[idx] = Math.log(1 + cell);
+                    });
+                });
+            };
+
+            HeatMap = new CanvasXpress("canvas", {
+                "y": {
+                    "vars": genes,
+                    "smps": smps,
+//                    "desc": [ "Intensity","Intensity2" ],
+                    "data": data
+                }
+            }, {
+                "graphType": "Heatmap",
+                "useFlashIE": true,
+//                "gradient": true,
+//                "centerData": true,
+//                "showSmpDendrogram": false,
+//                "showVarDendrogram": false,
+//                "dendrogramColor": "yellow",
+//                "dendrogramHang": true,
+//                "showLegend": false,
+                "indicatorWidth": 3,
+                "showSampleNames": false,
+                "showVariableNames": false
+            });
+
+            if ($(".chk-cluster-samples").is(":checked")) HeatMap.clusterSamples();
+            if ($(".chk-cluster-features").is(":checked")) HeatMap.clusterVariables();
+//            if ($(".chk-kmeans-samples").is(":checked")) HeatMap.kmeansSamples();
+//            if ($(".chk-kmeans-features").is(":checked")) HeatMap.kmeansVariables();
+        };
+
+        var DrawHeatmapFromButton = function () {
+            var genes = _.map(_.range(1, 100), function (i) {
+                return "Gene" + i;
+            });
+            var smps = _.map(_.range(1, 100), function (i) {
+                return "Smp" + i;
+            });
+            var data = TextDataAsDoubleArrays();
+            DrawHeatmap(genes, smps, data);
+        };
+
+        var DrawHeatmapFromRfBranch = function () {
+            $.ajax({
+                "url": "data/rf_branch_matrix_2013_03_12_ITMI_DF3b_no_NPF_M_ms_FM_hilevel_Preterm_Deep5",
+                "success": function (txt) {
+                    var rows = d3.tsv.parseRows(txt);
+                    var smps = rows[0];
+                    var features = _.map(_.rest(rows, 1), function (row) {
+                        return row[0];
+                    });
+                    var data = _.map(_.rest(rows, 1), function (row) {
+                        return _.map(_.rest(row, 1), parseFloat);
+                    });
+
+                    DrawHeatmap(features, smps, data);
+                }
+            });
+        };
+
+        var DrawHeatmapFromRfLeaves = function () {
+            $.ajax({
+                "url": "data/rf_leaves_2013_03_12_ITMI_DF3b_no_NPF_M_ms_FM_hilevel_Preterm_Deep5",
+                "success": function (txt) {
+                    var rows = d3.tsv.parseRows(txt);
+                    var data = [];
+                    _.each(rows, function (row) {
+                        var x = row[0];
+                        var y = row[1];
+                        var v = row[2];
+
+                        var tmparray = data[x];
+                        if (!tmparray) {
+                            tmparray = [];
+                            data[x] = tmparray;
+                        }
+
+                        if (x == y) {
+                            tmparray[y] = 0;
+                        } else {
+                            tmparray[y] = parseFloat(v);
+                        }
+                    });
+
+                    var samps = _.map(_.range(0, data.length), function (i) {
+                        return "Samp" + i;
+                    });
+
+                    DrawHeatmap(samps, samps, data);
+                }
+            });
+        };
+
+        var LoadHeatmapData = function () {
+            var doubledata = _.map(_.range(1, 100), function (i) {
+                return _.map(_.range(1, 100), function (i) {
+                    return (Math.floor(Math.random() * 7) + 4);
+                });
+            });
+
+            var textdata = _.map(doubledata, function (doublerow) {
+                return doublerow.join(",");
+            });
+            $("#text_data").val(textdata.join("\n"));
+        };
+
+        $(document).ready(function () {
+            $(".draw-heatmap").click(DrawHeatmapFromButton);
+            $(".draw-heatmap-rfbranch").click(DrawHeatmapFromRfBranch);
+            $(".draw-heatmap-rfleaves").click(DrawHeatmapFromRfLeaves);
+            $(".sample-heatmap-data").click(LoadHeatmapData);
+            $(".sample-enter-data").click(function () {
+                $(".enter-data").toggle("hide");
+            });
+            LoadHeatmapData();
+        });
+    </script>
+</head>
+<body>
+<div class="container">
+    <div class="well">
+        <div class="btn-group">
+            <button class="btn btn-mini sample-enter-data">enter data</button>
+            <button class="btn btn-mini sample-heatmap-data">use example data for heatmap</button>
+        </div>
+
+        <div class="enter-data hide">
+            <label for="text_data"><b>Input Data (csv-format)</b></label>
+            <textarea id="text_data" rows="10" class="input-block-level"></textarea>
+        </div>
+    </div>
+    <div class="btn-group btn-group-vertical">
+        <button class="btn draw-heatmap">Draw HeatMap</button>
+        <button class="btn draw-heatmap-rfbranch">Draw HeatMap (rfbranch)</button>
+        <button class="btn draw-heatmap-rfleaves">Draw HeatMap (rfleaves)</button>
+    </div>
+    <form class="form form-inline form-horizontal">
+        <label class="checkbox">
+            <input type="checkbox" class="chk-cluster-samples"> Cluster Samples
+        </label>
+        <label class="checkbox">
+            <input type="checkbox" class="chk-cluster-features"> Cluster Features
+        </label>
+        <label class="checkbox">
+            <input type="checkbox" class="chk-logscale"> Log Scale
+        </label>
+    </form>
+    <div class="vis-container"></div>
+</div>
+</body>
+</html>
