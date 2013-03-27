@@ -1,0 +1,215 @@
+<html>
+<head>
+    <link rel="shortcut icon" href="img/isbfavicon.ico" type="image/x-icon"/>
+    <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/bootstrap-2.0.4/css/bootstrap.min.css"/>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Heatmap</title>
+
+    <meta name="viewport" content="width=device-width">
+
+    <script type="text/javascript" src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>
+    <script type="text/javascript" src="http://canvasxpress.org/js/canvasXpress.min.js"></script>
+    <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/bootstrap-2.1.1/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="underscore-1.4.4.js"></script>
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+    <script type="text/javascript" src="bitheat.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            var canvas_width = 1000,
+                canvas_height = 1000;
+
+            var InitCanvas = function () {
+                $(".vis-container").empty();
+                $(".vis-container").html('<canvas id="canvas" width=' + canvas_width + ' height=' + canvas_height + '></canvas>');
+            };
+
+            var TextDataAsDoubleArrays = function () {
+                var txt = $("#text_data").val();
+                var rows = d3.csv.parseRows(txt);
+                return _.map(rows, function (row) {
+                    return _.map(row, parseFloat);
+                });
+            };
+
+            var HeatMap;
+            var DrawHeatmap = function (genes, smps, data) {
+                console.log("DrawHeatmap(" + genes.length + "," + smps.length + "," + data.length + ")");
+
+                InitCanvas();
+
+                if ($(".chk-logscale").is(":checked")) {
+                    _.each(data, function(row) {
+                        _.each(row, function(cell, idx) {
+                            row[idx] = Math.log(1 + cell);
+                        });
+                    });
+                };
+
+                var max_intensity = -1,
+                    min_intensity = 100000;
+
+                _.each(data, function(row, idx_y) {
+                    _.each(row, function(cell, idx_x) {
+                        var value = parseFloat(cell);
+
+                        if (value > max_intensity) {
+                            max_intensity = value;
+                        }
+                        if (value < min_intensity) {
+                            min_intensity = value;
+                        }
+                    });
+                });
+
+                var heatmap = BitHeatFactory.create({
+                    canvas_el: $('.vis-container canvas')[0],
+                    width: canvas_width,
+                    height: canvas_height,
+                    num_data_x: genes.length,
+                    num_data_y: smps.length
+                });
+
+                heatmap.clear();
+
+                var color_scale = d3.scale.linear()
+                        .domain([min_intensity, (min_intensity + max_intensity) / 2.0, max_intensity])
+                        .interpolate(d3.interpolateRgb)
+                        .range(['blue', 'white', 'red']);
+
+                heatmap.setColorScale(color_scale);
+
+                for (var row_idx = 0; row_idx < data.length; row_idx++) {
+                    for (var col_idx = 0; col_idx < smps.length; col_idx++) {
+                        var value = parseFloat(data[row_idx][col_idx]);
+                        heatmap.addDataPoint(row_idx, col_idx, value);
+                    }
+                }
+
+                heatmap.display();
+            };
+
+            var DrawHeatmapFromButton = function () {
+                var genes = _.map(_.range(1, 100), function (i) {
+                    return "Gene" + i;
+                });
+                var smps = _.map(_.range(1, 100), function (i) {
+                    return "Smp" + i;
+                });
+                var data = TextDataAsDoubleArrays();
+                DrawHeatmap(genes, smps, data);
+            };
+
+            var DrawHeatmapFromRfBranch = function () {
+                $.ajax({
+                    "url": "data/rf_branch_matrix_2013_03_12_ITMI_DF3b_no_NPF_M_ms_FM_hilevel_Preterm_Deep5",
+                    "success": function (txt) {
+                        var rows = d3.tsv.parseRows(txt);
+                        var smps = rows[0];
+                        var features = _.map(_.rest(rows, 1), function (row) {
+                            return row[0];
+                        });
+                        var data = _.map(_.rest(rows, 1), function (row) {
+                            return _.map(_.rest(row, 1), parseFloat);
+                        });
+
+                        DrawHeatmap(features, smps, data);
+                    }
+                });
+            };
+
+            var DrawHeatmapFromRfLeaves = function () {
+                $.ajax({
+                    "url": "data/rf_leaves_2013_03_12_ITMI_DF3b_no_NPF_M_ms_FM_hilevel_Preterm_Deep5",
+                    "success": function (txt) {
+                        var rows = d3.tsv.parseRows(txt);
+                        var data = [];
+                        _.each(rows, function (row) {
+                            var x = row[0];
+                            var y = row[1];
+                            var v = row[2];
+
+                            var tmparray = data[x];
+                            if (!tmparray) {
+                                tmparray = [];
+                                data[x] = tmparray;
+                            }
+
+                            if (x == y) {
+                                tmparray[y] = 0;
+                            } else {
+                                tmparray[y] = parseFloat(v);
+                            }
+                        });
+
+                        var samps = _.map(_.range(0, data.length), function (i) {
+                            return "Samp" + i;
+                        });
+
+                        DrawHeatmap(samps, samps, data);
+                    }
+                });
+            };
+
+            var LoadHeatmapData = function () {
+                var doubledata = _.map(_.range(1, 100), function (i) {
+                    return _.map(_.range(1, 100), function (i) {
+                        return (Math.floor(Math.random() * 7) + 4);
+                    });
+                });
+
+                var textdata = _.map(doubledata, function (doublerow) {
+                    return doublerow.join(",");
+                });
+                $("#text_data").val(textdata.join("\n"));
+            };
+
+            $(document).ready(function () {
+                $(".draw-heatmap").click(DrawHeatmapFromButton);
+                $(".draw-heatmap-rfbranch").click(DrawHeatmapFromRfBranch);
+                $(".draw-heatmap-rfleaves").click(DrawHeatmapFromRfLeaves);
+                $(".sample-heatmap-data").click(LoadHeatmapData);
+                $(".sample-enter-data").click(function () {
+                    $(".enter-data").toggle("hide");
+                });
+                LoadHeatmapData();
+            });
+        });
+    </script>
+</head>
+<body>
+<div class="container">
+    <div class="well">
+        <div class="btn-group">
+            <button class="btn btn-mini sample-enter-data">enter data</button>
+            <button class="btn btn-mini sample-heatmap-data">use example data for heatmap</button>
+        </div>
+
+        <div class="enter-data hide">
+            <label for="text_data"><b>Input Data (csv-format)</b></label>
+            <textarea id="text_data" rows="10" class="input-block-level"></textarea>
+        </div>
+    </div>
+    <div class="btn-group btn-group-vertical">
+        <button class="btn draw-heatmap">Draw HeatMap</button>
+        <button class="btn draw-heatmap-rfbranch">Draw HeatMap (rfbranch)</button>
+        <button class="btn draw-heatmap-rfleaves">Draw HeatMap (rfleaves)</button>
+    </div>
+    <form class="form form-inline form-horizontal">
+        <label class="checkbox">
+            <input type="checkbox" class="chk-cluster-samples"> Cluster Samples
+        </label>
+        <label class="checkbox">
+            <input type="checkbox" class="chk-cluster-features"> Cluster Features
+        </label>
+        <label class="checkbox">
+            <input type="checkbox" class="chk-logscale"> Log Scale
+        </label>
+    </form>
+    <div class="vis-container"></div>
+</div>
+</body>
+</html>
